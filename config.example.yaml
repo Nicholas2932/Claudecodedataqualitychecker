@@ -1,0 +1,42 @@
+# ── Dataset Quality Checker — example configuration ──────────────────────────
+# Every key is optional. Omitted keys fall back to the defaults shown here,
+# which exactly reproduce the tool's zero-config behaviour.
+#
+# Usage:
+#   python data_quality_checker.py data.parquet --config config.example.yaml
+#
+# The file may be YAML (.yaml/.yml) or JSON (.json) — format is chosen by
+# extension.
+
+# ── input loading ────────────────────────────────────────────────────────────
+input:
+  delimiter: null        # null = pandas default for .csv, auto-sniff for .tsv/.txt
+  excel_sheet: 0         # sheet index or name for .xlsx/.xls
+
+# ── report exports (null = skip; terminal report always prints) ──────────────
+report:
+  html: null             # e.g. report.html
+  markdown: null         # e.g. report.md
+
+# ── scoping ──────────────────────────────────────────────────────────────────
+exclude_columns: []      # columns ignored by ALL checks, e.g. [customer_id]
+exclude_checks: []       # checks to skip, by name, e.g. ["Memory Usage"]
+non_negative_columns: [] # force the negative-value check on these columns
+                         # regardless of their name, e.g. [rev, amt]
+
+# ── thresholds ───────────────────────────────────────────────────────────────
+thresholds:
+  missing_fail_pct: 20         # missing % above this → FAIL (else WARN)
+  near_constant_frac: 0.95     # one value covering ≥ this fraction → near-constant
+  correlation: 0.95            # |r| ≥ this flags a column pair (lower = stricter)
+  outlier_iqr_pct: 2.0         # % beyond 1.5×IQR fence above this → flag
+  zscore_warn_pct: 0.5         # % with |z|>3 above this → WARN
+  zscore_fail_pct: 2.0         # % with |z|>3 above this → FAIL
+  skewness: 2.0                # |skewness| above this → flag
+  high_cardinality_ratio: 0.8  # unique/row ratio ≥ this for object cols → flag
+  low_cardinality_max: 10      # numeric cols with ≤ this many uniques → flag
+  class_imbalance_frac: 0.90   # dominant class ≥ this fraction → flag
+  zero_concentration_frac: 0.50 # zeros ≥ this fraction of a numeric col → flag
+  min_rows_for_outliers: 30    # cols with fewer non-null rows are skipped + noted
+  date_sample_size: 500        # rows sampled for date checks (null = scan all)
+  memory_warn_mb: 500          # in-memory size above this (MB) → WARN
